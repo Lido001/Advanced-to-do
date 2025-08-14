@@ -78,7 +78,6 @@ const Tasklist = () => {
   );
   return (
     <div className="bg-white shadow-md pt-3 px-4 mb-2 rounded-2xl border border-gray-200 transition-all duration-300">
-      {loading && <p>Loading tasks...</p>}
       {error && <p>Error: {error}</p>}
       <Table>
         <TableHeader>
@@ -104,7 +103,7 @@ const Tasklist = () => {
           {list.length === 0 ? (
             <TableRow>
               <TableCell colSpan={8} className="text-center text-gray-500 py-6">
-                No tasks available ❕
+                {loading ? (<p>Loading tasks...</p>) : error ? (<p>Error: {error}</p>) : (<p>No Tasks Available</p>)}
               </TableCell>
             </TableRow>
           ) : filtered.length > 0 ? (

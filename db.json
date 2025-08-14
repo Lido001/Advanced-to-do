@@ -95,7 +95,7 @@
       "data": "Pay Utility Bills",
       "priority": "Medium",
       "assign": "Hank",
-      "status": "On Progress...",
+      "status": "Pending",
       "from": "2025-08-21T18:30:00.000Z",
       "to": "2025-08-22T18:30:00.000Z",
       "completed": false

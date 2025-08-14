@@ -2,13 +2,12 @@
   "name": "to-do_app",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "dev": "concurrently \"next dev\" \"json-server db.json --port 8000\"",
-    "next-dev": "next dev"
-  },
+"scripts": {
+  "dev": "next dev",
+  "build": "next build",
+  "start": "next start",
+  "lint": "next lint"
+},
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
     "@radix-ui/react-alert-dialog": "^1.1.7",
