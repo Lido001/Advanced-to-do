@@ -20,11 +20,6 @@
 # production
 /build
 
-
-# local mock database
-/db.json
-
-
 # misc
 .DS_Store
 *.pem
