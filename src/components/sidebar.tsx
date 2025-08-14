@@ -43,28 +43,3 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
-
-// <div>
-//   <aside>
-//     <div className="flex flex-col h-screen gap-y-12 mt-12 ">
-//       <div className="flex items-center justify-center p-4">
-//         <Avatar className="w-32 h-32">
-//           <AvatarImage src="https://github.com/shadcn.png" />
-//           <AvatarFallback>LS</AvatarFallback>
-//         </Avatar>
-//       </div>
-//       <ul className="flex flex-col p-y-4">
-//         <li className="w-full p-5 bg-gray-200 hover:bg-gray-300 text-lg font-semibold">
-//           <Link href="/">Add Task</Link>
-//         </li>
-//         <li className="w-full p-5 bg-gray-200 hover:bg-gray-300">
-//           <Link href="/task">ALL Tasks</Link>
-//         </li>
-//       </ul>
-//       {/* <div className="w-full">
-//         <Component/>
-//         <PriorityPieChart />
-//       </div> */}
-//     </div>
-//   </aside>
-// </div>

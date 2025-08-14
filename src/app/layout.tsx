@@ -3,14 +3,13 @@ import React from "react";
 import "./globals.css";
 import Sidebar from "@/components/sidebar";
 import { Provider } from "react-redux";
-import store from "@/redux/store";
+import {store} from "@/redux/slice/store";
 import { Toaster } from "@/components/ui/sonner";
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <html lang="en">
       <body className="flex bg-[#f2f1f0]">
-        {" "}
         <Provider store={store}>
           <div className="fixed h-screen w-64 bg-white shadow-lg">
             <Sidebar />

@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "dev": "concurrently \"next dev\" \"json-server db.json --port 8000\"",
+    "next-dev": "next dev"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
@@ -18,9 +19,11 @@
     "@radix-ui/react-select": "^2.2.2",
     "@radix-ui/react-slot": "^1.2.0",
     "@reduxjs/toolkit": "^2.6.1",
+    "axios": "^1.11.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
+    "json-server": "^1.0.0-beta.3",
     "lucide-react": "^0.487.0",
     "motion": "^12.9.4",
     "next": "15.2.5",
@@ -44,6 +47,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "concurrently": "^9.2.0",
     "eslint": "^9",
     "eslint-config-next": "15.2.5",
     "tailwindcss": "^4",

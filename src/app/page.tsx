@@ -9,7 +9,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { IoIosSearch } from "react-icons/io";
 import { IoIosList } from "react-icons/io";
@@ -17,14 +17,19 @@ import { BsGrid } from "react-icons/bs";
 import myImg from "@/images/bell.png";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/redux/store";
-import { setSearchTerm } from "@/redux/taskSlice";
+import { AppDispatch, RootState } from "@/redux/slice/store";
+import { fetchTodos } from "@/redux/taskSlice";
+import { setSearchTerm } from "@/redux/searchSlice";
 
 const Home = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [isOpen, setIsOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
-  const searchTerm = useSelector((state: RootState) => state.tasks.searchTerm);
+  const searchTerm = useSelector((state: RootState) => state.search.searchTerm);
+
+  useEffect(() => {
+    dispatch(fetchTodos());
+  }, [dispatch]);
 
   return (
     <div>

@@ -21,10 +21,11 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { format } from "date-fns";
 import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/redux/store";
-import { addTask } from "@/redux/taskSlice";
+import { AppDispatch } from "@/redux/slice/store";
 import { toast } from "sonner";
-import { TbAlertOctagonFilled } from "react-icons/tb";
+import { TbAlertOctagonFilled, TbFlaskFilled } from "react-icons/tb";
+import { createTodo } from "@/api/services/todoservice";
+import { fetchTodos } from "@/redux/taskSlice";
 
 const Taskform = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -37,7 +38,15 @@ const Taskform = () => {
   const [showDialog, setShowDialog] = useState(false);
   const [validationMessage, setValidationMessage] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const resetform = () => {
+    setData("");
+    setAssign("");
+    setDate(undefined);
+    setPriority("Medium");
+    setStatus("On Progress...");
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!data.trim()) {
       setValidationMessage("Please Enter a task !");
@@ -61,27 +70,31 @@ const Taskform = () => {
 
       return;
     }
+    setIsOpen(false);
 
-    dispatch(
-      addTask({
+    try {
+      await createTodo({
         data,
         priority,
         assign,
         status,
         from: date?.from.toISOString(),
         to: date?.to?.toISOString(),
-        id: 0,
         completed: false,
-      })
-    );
-    setData("");
-    setAssign("");
-    setDate(undefined);
-    setStatus("On Progress...");
-    toast.success("Task added!", {
-      description: "It will appear in your list shortly.",
-      duration: 4000,
-    });
+      });
+      await dispatch(fetchTodos());
+      resetform();
+      toast.success("Task added!", {
+        description: "It will appear in your list shortly.",
+        duration: 4000,
+      });
+    } catch (error) {
+      toast.error("Failed to add task. Please try again.", {
+        description: "There was an error while adding the task.",
+      });
+    }
+
+    setIsOpen(false);
   };
   return (
     <div>
@@ -187,10 +200,13 @@ const Taskform = () => {
           Add
         </Button>
       </form>
-      <AlertDialog open={showDialog} onOpenChange={setShowDialog} >
+      <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-x-3">Missing Information<TbAlertOctagonFilled className="text-red-500 text-2xl"/></AlertDialogTitle>
+            <AlertDialogTitle className="flex items-center gap-x-3">
+              Missing Information
+              <TbAlertOctagonFilled className="text-red-500 text-2xl" />
+            </AlertDialogTitle>
             <AlertDialogDescription>{validationMessage}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -203,5 +219,3 @@ const Taskform = () => {
 };
 
 export default Taskform;
-
-
