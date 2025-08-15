@@ -1,28 +1,28 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { readDb, writeDb, generateId } from "../../../src/lib/db";
+import dbConnect from "@/lib/dbConnect";
+import Todo from "@/../../models/Todo";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const db = await readDb();
-  const list = Array.isArray(db.todos) ? db.todos : [];
+  await dbConnect();
 
-  if (req.method === "GET") {
-    return res.status(200).json(list);
+  switch (req.method) {
+    case "POST":
+      try {
+        const todo = await Todo.create(req.body);
+        return res.status(201).json(todo);
+      } catch (error:any) {
+        console.error("POST /api/todos error:", error);
+        return res.status(500).json({ error: error.message });
+      }
+    case "GET":
+      try {
+        const todos = await Todo.find({});
+        return res.status(200).json(todos);
+      } catch (error:any) {
+        return res.status(500).json({ error: error.message });
+      }
+    default:
+      res.setHeader("Allow", ["GET", "POST"]);
+      res.status(405).end(`Method ${req.method} Not Allowed`);
   }
-
-  if (req.method === "POST") {
-    if (process.env.NODE_ENV === "production") {
-      return res.status(405).json({ message: "POST disabled in production on mock API" });
-    }
-
-    const body = req.body || {};
-    const id = body.id ?? generateId(list);
-    const item = { id, ...body };
-    list.push(item);
-    db.todos = list;
-    await writeDb(db);
-    return res.status(201).json(item);
-  }
-
-  res.setHeader("Allow", "GET,POST");
-  return res.status(405).end();
 }

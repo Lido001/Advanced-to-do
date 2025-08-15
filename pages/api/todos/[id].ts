@@ -1,49 +1,45 @@
-// pages/api/todos/[id].ts
-import type { NextApiRequest, NextApiResponse } from 'next';
-import path from 'path';
-import fs from 'fs';
+import type { NextApiRequest, NextApiResponse } from "next";
+import mongoose from "mongoose";
+import dbConnect from "@/lib/dbConnect";
+import Todo from "@../../../models/Todo";
 
-const dbPath = path.join(process.cwd(), 'db.json');
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  await dbConnect();
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { id } = req.query;
-
-  if (!id) {
-    return res.status(400).json({ message: 'Missing todo ID' });
+  const { id } = req.query; 
+  if (!mongoose.Types.ObjectId.isValid(id as string)) {
+    return res.status(400).json({ message: "Invalid ID" });
   }
 
   try {
-    const fileData = fs.readFileSync(dbPath, 'utf-8');
-    const jsonData = JSON.parse(fileData);
-    let todos = jsonData.todos || [];
-
-    if (req.method === 'GET') {
-      const todo = todos.find((t: any) => t.id == id);
-      if (!todo) {
-        return res.status(404).json({ message: 'Todo not found' });
+    switch (req.method) {
+      case "GET": {
+        const todo = await Todo.findById(id);
+        if (!todo) return res.status(404).json({ message: "Not found" });
+        return res.status(200).json(todo);
       }
-      return res.status(200).json(todo);
-    }
 
-    if (req.method === 'PUT') {
-      const index = todos.findIndex((t: any) => t.id == id);
-      if (index === -1) {
-        return res.status(404).json({ message: 'Todo not found' });
+      case "PUT":
+      case "PATCH": {
+        const updated = await Todo.findByIdAndUpdate(id, req.body, { new: true });
+        if (!updated) return res.status(404).json({ message: "Not found" });
+        return res.status(200).json(updated);
       }
-      todos[index] = { ...todos[index], ...req.body };
-      fs.writeFileSync(dbPath, JSON.stringify({ todos }, null, 2));
-      return res.status(200).json(todos[index]);
-    }
 
-    if (req.method === 'DELETE') {
-      todos = todos.filter((t: any) => t.id != id);
-      fs.writeFileSync(dbPath, JSON.stringify({ todos }, null, 2));
-      return res.status(200).json({ message: 'Todo deleted successfully' });
-    }
+      case "DELETE": {
+        await Todo.findByIdAndDelete(id);
+        return res.status(204).end();
+      }
 
-    res.setHeader('Allow', ['GET', 'PUT', 'DELETE']);
-    return res.status(405).end(`Method ${req.method} Not Allowed`);
+      default:
+        res.setHeader("Allow", ["GET", "PUT", "PATCH", "DELETE"]);
+        return res.status(405).end(`Method ${req.method} Not Allowed`);
+    }
   } catch (error) {
-    return res.status(500).json({ message: 'Error handling request', error });
+    console.error(error);
+    return res.status(500).json({ message: "Server error", error });
   }
 }
+
+
+

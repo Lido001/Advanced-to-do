@@ -1,41 +1,26 @@
 "use client";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@radix-ui/react-popover";
+import {Popover,PopoverTrigger,PopoverContent,} from "@radix-ui/react-popover";
 import { format } from "date-fns";
-import React, { useEffect, useState } from "react";
+import React, {useState}  from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-  Table,
-} from "./ui/table";
+import {TableHeader,TableRow,TableHead,TableBody,TableCell,Table,} from "./ui/table";
 import { AppDispatch, RootState } from "@/redux/slice/store";
 import { ImCancelCircle } from "react-icons/im";
 import { useDispatch, useSelector } from "react-redux";
 import { CheckCircle, Pencil, Trash2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  deleteTodo,
-  getTodos,
-  patchTodoCompleted,
-  patchTodosCompletedBulk,
-  updateTodo,
-} from "@/api/services/todoservice";
-import useFetchUser from "@/hooks/useFetch";
+import { motion } from "framer-motion";
+import {deleteTodo,patchTodoCompleted,patchTodosCompletedBulk,updateTodo,} from "@/api/services/todoservice";
 import { toast } from "sonner";
 import { fetchTodos } from "@/redux/taskSlice";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 const Tasklist = () => {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch<AppDispatch>(); 
+  const MySwal = withReactContent(Swal);
   const [newdata, setNewData] = useState("");
   const [newpriority, setNewpriority] = useState("Medium");
   const [editid, setEditid] = useState<string | null>(null);
@@ -45,16 +30,13 @@ const Tasklist = () => {
   const [toDate, setToDate] = useState<any | undefined>();
   const [isFromOpen, setIsFromOpen] = useState(false);
   const [isToOpen, setIsToOpen] = useState(false);
-  const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
-  const { list, error, loading } = useSelector(
-    (state: RootState) => state.user
-  );
+  const { list, error, loading } = useSelector((state: RootState) => state.user);
 
   const handleSelect = async (id: string, currentCompleted: boolean) => {
     try {
       await patchTodoCompleted(id, !currentCompleted);
-      await dispatch(fetchTodos()); // refresh Redux list
+      await dispatch(fetchTodos()); 
     } catch (e) {
       toast.error("Failed to update");
     }
@@ -62,9 +44,9 @@ const Tasklist = () => {
 
   const handleSelectAll = async (target: boolean) => {
     try {
-      const ids = list.map((t) => t.id);
+      const ids = list.map((t) => t._id);
       await patchTodosCompletedBulk(ids, target);
-      await dispatch(fetchTodos()); // refresh Redux list
+      await dispatch(fetchTodos()); 
     } catch (e) {
       toast.error("Failed to update all");
     }
@@ -78,7 +60,6 @@ const Tasklist = () => {
   );
   return (
     <div className="bg-white shadow-md pt-3 px-4 mb-2 rounded-2xl border border-gray-200 transition-all duration-300">
-      {error && <p>Error: {error}</p>}
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-white text-base font-semibold text-gray-700 ">
@@ -89,7 +70,6 @@ const Tasklist = () => {
                 onCheckedChange={(checked) => handleSelectAll(Boolean(checked))}
               />
             </TableHead>
-
             <TableHead className="">Task</TableHead>
             <TableHead>Assignee</TableHead>
             <TableHead className="text-center">Priority</TableHead>
@@ -103,13 +83,19 @@ const Tasklist = () => {
           {list.length === 0 ? (
             <TableRow>
               <TableCell colSpan={8} className="text-center text-gray-500 py-6">
-                {loading ? (<p>Loading tasks...</p>) : error ? (<p>Error: {error}</p>) : (<p>No Tasks Available</p>)}
+                {loading ? (
+                  <p>Loading tasks...</p>
+                ) : error ? (
+                  <p>Error: {error}</p>
+                ) : (
+                  <p>No Tasks Available</p>
+                )}
               </TableCell>
             </TableRow>
           ) : filtered.length > 0 ? (
             [...filtered].reverse().map((item, index) => (
               <motion.tr
-                key={item.id ?? index}
+                key={item._id ?? index}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
@@ -126,11 +112,11 @@ const Tasklist = () => {
                     className="peer mx-4"
                     checked={item.completed}
                     onCheckedChange={() =>
-                      handleSelect(item.id, item.completed)
+                      handleSelect(item._id, item.completed)
                     }
                   />
                 </TableCell>
-                {editid === item.id ? (
+                {editid === item._id ? (
                   <>
                     <TableCell className="">
                       <Input
@@ -236,7 +222,7 @@ const Tasklist = () => {
                       <button
                         onClick={async () => {
                           const updatedTask = {
-                            id: item.id,
+                            _id: item._id,
                             data: newdata,
                             priority: newpriority,
                             assign: newAssign,
@@ -248,6 +234,7 @@ const Tasklist = () => {
                           try {
                             await updateTodo(updatedTask);
                             dispatch(fetchTodos());
+                            toast.success("Task Updated Successfully !");
 
                             setNewData("");
                             setNewpriority("Medium");
@@ -336,7 +323,7 @@ const Tasklist = () => {
                     <TableCell className="flex justify-between items-center mt-1.5 px-2.5">
                       <button
                         onClick={() => {
-                          setEditid(item.id);
+                          setEditid(item._id);
                           setNewData(item.data);
                           setNewpriority(item.priority);
                           setNewAssign(item.assign);
@@ -354,12 +341,22 @@ const Tasklist = () => {
 
                       <button
                         onClick={async () => {
-                          try {
-                            await deleteTodo(item.id);
-                            await dispatch(fetchTodos());
-                            toast.success("task deleted successfully");
-                          } catch (error) {
-                            toast.error("failed to delete task");
+                          const result = await MySwal.fire({
+                            title: "Are you sure?",
+                            text: "You will not be able to recover this task!",
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonText: "Yes, delete it!",
+                            cancelButtonText: "Cancel",
+                          });
+                          if (result.isConfirmed) {
+                            try {
+                              await deleteTodo(item._id);
+                              await dispatch(fetchTodos());
+                              toast.success("Task deleted successfully");
+                            } catch (error) {
+                              toast.error("Failed to delete task");
+                            }
                           }
                         }}
                         title="Delete"
@@ -384,5 +381,4 @@ const Tasklist = () => {
     </div>
   );
 };
-
 export default Tasklist;

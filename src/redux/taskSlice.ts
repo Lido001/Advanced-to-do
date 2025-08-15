@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getTodos } from "@/api/services/todoservice";
 
 export interface Task {
-  id: string;
+  _id: string;
   data: string;
   priority: string;
   assign: string;
@@ -25,8 +25,7 @@ const initialState: UserState = {
 };
 
 export const fetchTodos = createAsyncThunk("user/fetchTodos", async () => {
-  const response = await getTodos();
-  return response;
+  return await getTodos();
 });
 
 const userSlice = createSlice({
